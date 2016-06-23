@@ -38,17 +38,13 @@ app.directive('lvColorPicker', function ($timeout) {
     function toHex(value) {
       var color = tinycolor(value);
       if (color.isValid()) {
-        return color.toHex();
+        return '#' + color.toHex();
       }
-      return value;
     }
     
     function fromHex(value) {
       switch (scope.format) {
         case 'hex':
-          if (value[0] !== '#') {
-            value = '#' + value;
-          }
           return value;
         
         case 'rgb':
@@ -84,8 +80,10 @@ app.directive('lvColorPicker', function ($timeout) {
     };
     
     scope.updateColor = function() {
+      var color = toHex(scope.color);
       $timeout(function() {
-        swatch.minicolors('value', toHex(scope.color));
+        swatch.minicolors('value', color);
+        ngModel.$setViewValue(color);
       }, 0, false);
     };
     
@@ -94,7 +92,7 @@ app.directive('lvColorPicker', function ($timeout) {
       opacity: false,
       change: function (value) {
         scope.$apply(function () {
-          if (!input.is(":focus")) {
+          if (!input.is(':focus') || swatch.parent().hasClass('minicolors-focus')) {
             scope.color = fromHex(value);
             ngModel.$setViewValue(value);
           }
